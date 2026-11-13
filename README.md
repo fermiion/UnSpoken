@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # UnSpoken.
 > **"A place for everything left unsaid."**  
 > *You don't have to hold it all inside.*
@@ -177,3 +178,7 @@ npm run build
 ---
 
 *Even silence deserves to be heard.*
+=======
+# UnSpoken
+An anonymous space where people can share their thoughts, feelings, stories, and struggles without fear of judgement. Anyone can read the unspoken experiences of others and offer a little kindness, comfort, and support. A place where people feel heard without revealing who they are.
+>>>>>>> origin/main
