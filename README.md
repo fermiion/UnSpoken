@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # UnSpoken.
 > **"A place for everything left unsaid."**  
 > *You don't have to hold it all inside.*
@@ -19,7 +18,7 @@ UnSpoken is a production-minded, anonymous emotional expression platform where p
 
 ## 🎨 Theme System
 
-UnSpoken features a dual theme system:
+UnSpoken features a complete dual theme system:
 
 ### 1. Dark Mode (Default) — *Midnight Warmth*
 - **Main Background**: `#171615` (Midnight Charcoal)
@@ -27,7 +26,7 @@ UnSpoken features a dual theme system:
 - **Inputs & Elevated Surfaces**: `#302D2A` (Soft Mocha)
 - **Buttons & Highlights**: `#B77D5F` (Muted Terracotta)
 - **Main Headings & Text**: `#E9D9C9` (Warm Ivory)
-- **Secondary Text**: `#A99B8D` (Ash Beige)
+- **Secondary Text**: `#B6A89A` (Warm Taupe)
 - **Positive Indicators**: `#89917D` (Muted Sage)
 
 ### 2. Light Mode — *Earth & Light*
@@ -36,7 +35,7 @@ UnSpoken features a dual theme system:
 - **Buttons & Highlights**: `#B9785B` (Muted Terracotta)
 - **Secondary Accent**: `#858D76` (Sage)
 - **Primary Typography**: `#342B26` (Deep Espresso)
-- **Secondary Typography**: `#A59688` (Warm Taupe)
+- **Secondary Typography**: `#746657` (Warm Taupe)
 
 *Theme selection is persistent in `localStorage`, avoids initial page flickering via zero-latency pre-render scripts, and defaults strictly to Dark Mode.*
 
@@ -47,7 +46,7 @@ UnSpoken features a dual theme system:
 - **Framework**: Next.js (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS with custom design tokens
-- **Typography**: Cormorant Garamond (wordmark & headings) + Plus Jakarta Sans (body)
+- **Typography**: Cormorant Garamond (brand wordmark), Lora (headings & thoughts), and DM Sans (body, navigation, buttons)
 - **Icons**: Lucide React
 - **Backend**: Next.js Server Route Handlers & cryptographic service layer
 - **Database**: Supabase PostgreSQL with Row Level Security (RLS) + automatic persistent fallback engine for out-of-the-box local development
@@ -124,7 +123,7 @@ UnSpoken/
 
 ## 🛡️ Multi-Layer Safety & Crisis Screening
 
-- **Layer 1: Input Validation**: Blocks empty submissions, character flood spam, and oversized texts (> 5,000 chars).
+- **Layer 1: Input Validation**: Blocks empty submissions, character flood spam, and requests exceeding the technical ceiling (100,000 characters).
 - **Layer 2: Spam & Rate-Limiting**: Sliding-window rate limiter prevents automated abuse.
 - **Layer 3: Harmful Content Detection**:
   - Direct threats of violence and active encouragement of self-harm are strictly blocked.
@@ -159,7 +158,13 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
 ### 4. Admin Access
-Visit `/admin` and enter the administrative passcode (default: `unspoken-admin-safe-2026`, configurable via `ADMIN_SECRET_KEY`).
+Administrative access to the `/admin` moderation portal is protected by server-side authentication. To access the portal, configure a secure secret passcode in your environment variables:
+
+```bash
+ADMIN_SECRET_KEY=your-secure-admin-passcode
+```
+
+When navigating to `/admin`, enter this configured passcode to authenticate your administrative session.
 
 ---
 
@@ -167,7 +172,7 @@ Visit `/admin` and enter the administrative passcode (default: `unspoken-admin-s
 
 Run the automated test suite covering normalization, duplicate detection, cryptographic deletion, safety screening, reactions, reporting, and admin authentication:
 ```bash
-npx --yes tsx scripts/test-suite.ts
+npm test
 ```
 
 Build for production:
@@ -178,7 +183,3 @@ npm run build
 ---
 
 *Even silence deserves to be heard.*
-=======
-# UnSpoken
-An anonymous space where people can share their thoughts, feelings, stories, and struggles without fear of judgement. Anyone can read the unspoken experiences of others and offer a little kindness, comfort, and support. A place where people feel heard without revealing who they are.
->>>>>>> origin/main
