@@ -12,17 +12,29 @@ import {
   RefreshCw,
   AlertCircle,
   Filter,
+  Heart,
+  Users,
+  Feather,
+  Sun,
+  Sprout,
+  Moon,
 } from "lucide-react";
 
-const CATEGORIES = [
-  { id: "all", label: "All Reflections" },
-  { id: "unspoken", label: "Unspoken Thoughts" },
-  { id: "loneliness", label: "Loneliness" },
-  { id: "relationships", label: "Relationships" },
-  { id: "life", label: "Life" },
-  { id: "personal-growth", label: "Personal Growth" },
-  { id: "things-left-unsaid", label: "Things Left Unsaid" },
-  { id: "hope", label: "Hope" },
+interface CategoryMeta {
+  id: string;
+  label: string;
+  icon: React.ElementType;
+}
+
+const CATEGORIES: CategoryMeta[] = [
+  { id: "all", label: "All Reflections", icon: Compass },
+  { id: "unspoken", label: "Unspoken Thoughts", icon: Sparkles },
+  { id: "loneliness", label: "Loneliness", icon: Moon },
+  { id: "relationships", label: "Relationships", icon: Heart },
+  { id: "life", label: "Life", icon: Users },
+  { id: "personal-growth", label: "Personal Growth", icon: Sprout },
+  { id: "things-left-unsaid", label: "Things Left Unsaid", icon: Feather },
+  { id: "hope", label: "Hope", icon: Sun },
 ];
 
 export default function ExplorePage() {
@@ -112,11 +124,16 @@ export default function ExplorePage() {
           </p>
         </div>
 
-        {/* Filter Category Chips */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-text-muted px-1">
-            <Filter className="w-3.5 h-3.5" />
-            <span>Browse by theme</span>
+        {/* Filter Category Chips with Distinguishable Visual Icons */}
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-text-muted px-1">
+            <span className="flex items-center gap-1.5">
+              <Filter className="w-3.5 h-3.5" />
+              <span>Browse by theme</span>
+            </span>
+            <span className="font-normal lowercase text-text-muted">
+              {thoughts.length} {thoughts.length === 1 ? "reflection" : "reflections"} shown
+            </span>
           </div>
 
           <div
@@ -126,6 +143,8 @@ export default function ExplorePage() {
           >
             {CATEGORIES.map((cat) => {
               const isSelected = selectedCategory === cat.id;
+              const Icon = cat.icon;
+
               return (
                 <button
                   key={cat.id}
@@ -133,13 +152,18 @@ export default function ExplorePage() {
                   role="tab"
                   aria-selected={isSelected}
                   onClick={() => handleCategoryChange(cat.id)}
-                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-150 border cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-150 border cursor-pointer ${
                     isSelected
                       ? "bg-terracotta text-bg-primary border-terracotta shadow-xs font-semibold"
                       : "bg-bg-surface border-border-subtle text-text-secondary hover:text-text-primary hover:border-border-strong hover:bg-bg-elevated/40"
                   }`}
                 >
-                  {cat.label}
+                  <Icon
+                    className={`w-3.5 h-3.5 ${
+                      isSelected ? "text-bg-primary" : "text-terracotta"
+                    }`}
+                  />
+                  <span>{cat.label}</span>
                 </button>
               );
             })}
@@ -156,7 +180,7 @@ export default function ExplorePage() {
             <button
               type="button"
               onClick={() => fetchThoughts(1, selectedCategory, false)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg-surface text-xs font-medium hover:bg-bg-elevated transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg-surface text-xs font-medium hover:bg-bg-elevated transition-colors cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               <span>Retry</span>
@@ -175,7 +199,7 @@ export default function ExplorePage() {
             ))}
           </div>
         ) : thoughts.length > 0 ? (
-          <div className="space-y-5">
+          <div className="space-y-6">
             {thoughts.map((thought) => (
               <ThoughtCard
                 key={thought.id}

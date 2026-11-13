@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { DuplicateWarningModal } from "./DuplicateWarningModal";
 import { SuccessModal } from "./SuccessModal";
@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   AlertCircle,
   HelpCircle,
+  RotateCcw,
 } from "lucide-react";
 
 interface WritingEditorProps {
@@ -31,7 +32,8 @@ const CATEGORIES = [
   { id: "hope", label: "Hope" },
 ];
 
-const MAX_CHARS = 5000;
+// Generous technical safety ceiling (100,000 characters) - not displayed to users
+const TECHNICAL_SAFETY_CEILING = 100000;
 
 export function WritingEditor({
   initialCategory = "unspoken",
@@ -55,17 +57,34 @@ export function WritingEditor({
   // Crisis detection state
   const [crisisMessage, setCrisisMessage] = useState<string | null>(null);
 
-  const charCount = content.length;
-  const isTooLong = charCount > MAX_CHARS;
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-expand textarea naturally as content grows
+  const adjustHeight = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      const minHeight = isStandalonePage ? 240 : 170;
+      textarea.style.height = `${Math.max(minHeight, textarea.scrollHeight)}px`;
+    }
+  };
+
+  useEffect(() => {
+    adjustHeight();
+  }, [content, isStandalonePage]);
+
   const isTooShort = content.trim().length < 3;
+  const isOverCeiling = content.length > TECHNICAL_SAFETY_CEILING;
 
   const handleSubmit = async (acknowledgeDuplicate = false) => {
     if (isTooShort) {
       setError("Please write at least a few words to share.");
       return;
     }
-    if (isTooLong) {
-      setError(`Thoughts are limited to ${MAX_CHARS.toLocaleString()} characters.`);
+    if (isOverCeiling) {
+      setError(
+        "Your reflection has reached the technical safety ceiling. If possible, consider sharing it in parts so nothing is lost."
+      );
       return;
     }
 
@@ -111,6 +130,17 @@ export function WritingEditor({
     }
   };
 
+  const handleClear = () => {
+    if (content.trim().length > 0) {
+      if (!window.confirm("Are you sure you want to clear what you have written?")) {
+        return;
+      }
+    }
+    setContent("");
+    setError(null);
+    setCrisisMessage(null);
+  };
+
   const handleReset = () => {
     setContent("");
     setCategory("unspoken");
@@ -133,11 +163,11 @@ export function WritingEditor({
               <span>Let it out.</span>
             </h2>
             <p className="text-xs sm:text-sm text-text-secondary mt-1">
-              What&apos;s been on your mind lately? Nobody needs to know who you are.
+              What&apos;s been on your mind lately? Take all the space you need.
             </p>
           </div>
 
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-bg-elevated border border-border-subtle text-xs text-text-muted self-start sm:self-center">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-bg-elevated border border-border-subtle text-xs text-text-secondary self-start sm:self-center">
             <ShieldCheck className="w-3.5 h-3.5 text-sage shrink-0" />
             <span>Completely anonymous</span>
           </div>
@@ -159,7 +189,7 @@ export function WritingEditor({
         {/* Category Selector */}
         <div className="mb-5">
           <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2.5">
-            Choose a theme (optional)
+            Theme (optional)
           </label>
           <div className="flex flex-wrap gap-2">
             {CATEGORIES.map((cat) => (
@@ -179,25 +209,21 @@ export function WritingEditor({
           </div>
         </div>
 
-        {/* Journal Writing Textarea */}
+        {/* Journal Writing Textarea with Auto-Expansion */}
         <div className="space-y-2.5 mb-5">
           <textarea
+            ref={textareaRef}
             value={content}
             onChange={(e) => {
               setContent(e.target.value);
               if (error) setError(null);
             }}
-            placeholder="What's been on your mind lately? Start typing freely..."
-            rows={isStandalonePage ? 11 : 7}
-            maxLength={MAX_CHARS + 50}
-            className={`w-full rounded-2xl bg-input-bg border p-4 sm:p-5 text-base sm:text-lg font-serif text-text-primary placeholder:font-sans placeholder:text-text-muted placeholder:text-sm focus:outline-none transition-colors resize-y leading-relaxed min-h-[170px] ${
-              isTooLong
-                ? "border-red-500 focus:border-red-500"
-                : "border-border-subtle focus:border-terracotta"
-            }`}
+            placeholder="What's been on your mind lately? Write as much as you need, in your own time..."
+            rows={isStandalonePage ? 10 : 7}
+            className="w-full rounded-2xl bg-input-bg border border-border-subtle focus:border-terracotta p-4 sm:p-5 text-base sm:text-lg font-serif text-text-primary placeholder:font-sans placeholder:text-text-muted placeholder:text-sm focus:outline-none transition-colors resize-none leading-relaxed overflow-hidden"
           />
 
-          {/* Character Counter & Guidelines Note */}
+          {/* Quiet footer notes - No visible restrictive character counter */}
           <div className="flex items-center justify-between text-xs text-text-muted px-1">
             <Link
               href="/guidelines"
@@ -207,23 +233,34 @@ export function WritingEditor({
               <span>Community guidelines</span>
             </Link>
 
-            <span className={`font-mono text-xs ${isTooLong ? "text-red-400 font-semibold" : ""}`}>
-              {charCount.toLocaleString()} / {MAX_CHARS.toLocaleString()}
+            <span className="text-xs text-text-muted">
+              Preserving formatting &amp; paragraphs
             </span>
           </div>
         </div>
 
-        {/* Card Footer Actions */}
+        {/* Footer Actions with Clear/Leave Option */}
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-text-muted text-center sm:text-left">
-            Your identity stays hidden from other visitors. You will receive a private deletion key.
-          </p>
+          <div className="flex items-center gap-4 text-xs text-text-muted">
+            <span>Your identity stays hidden. You receive a private deletion key.</span>
+            {content.length > 0 && (
+              <button
+                type="button"
+                onClick={handleClear}
+                className="inline-flex items-center gap-1 text-text-secondary hover:text-text-primary underline cursor-pointer"
+                title="Discard current draft"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Clear draft</span>
+              </button>
+            )}
+          </div>
 
           <button
             type="button"
             onClick={() => handleSubmit(false)}
-            disabled={submitting || isTooShort || isTooLong}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-xs font-semibold tracking-wide uppercase bg-terracotta text-bg-primary hover:bg-terracotta-hover transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm active:scale-[0.98] cursor-pointer"
+            disabled={submitting || isTooShort || isOverCeiling}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-xs font-semibold tracking-wide uppercase bg-terracotta text-bg-primary hover:bg-terracotta-hover transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm active:scale-[0.98] cursor-pointer shrink-0"
           >
             {submitting ? (
               <>

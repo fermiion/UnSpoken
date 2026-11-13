@@ -3,7 +3,7 @@
  */
 
 import { ThoughtService } from "../src/lib/services/thoughtService";
-import { evaluateThoughtSafety } from "../src/lib/safety";
+import { evaluateThoughtSafety, TECHNICAL_SAFETY_CEILING } from "../src/lib/safety";
 import { normalizeText, computeContentHash, generateDeletionToken, verifyDeletionToken, hashDeletionToken } from "../src/lib/normalization";
 import { checkAdminPasscode, generateAdminToken, verifyAdminToken } from "../src/lib/adminAuth";
 
@@ -61,6 +61,16 @@ async function runTests() {
   const sufferingCheck = evaluateThoughtSafety("I feel so hopeless and I can't take the pain anymore, it feels like a heavy burden.");
   assert(sufferingCheck.allowed && sufferingCheck.crisisDetected, "Emotional distress is allowed and crisis support is offered without silencing");
 
+  // 2b. Long Writing Safety Ceiling Verification
+  console.log("\n--- 2b. Generous Writing Safety Ceiling (100,000 Chars) ---");
+  const longTextAllowed = "This is a meaningful paragraph about my life experience.\n\n".repeat(200); // ~11,600 chars
+  const longAllowedCheck = evaluateThoughtSafety(longTextAllowed);
+  assert(longAllowedCheck.allowed && longAllowedCheck.status === "published", "Long multi-paragraph stories (11,000+ chars) are fully accepted without 5,000 char restriction");
+
+  const oversizedText = "A".repeat(TECHNICAL_SAFETY_CEILING + 10);
+  const oversizedCheck = evaluateThoughtSafety(oversizedText);
+  assert(!oversizedCheck.allowed && oversizedCheck.status === "blocked", "Texts exceeding the 100,000 char technical ceiling are gracefully caught with safety reason");
+
   // 3. Thought Creation & Duplicate Detection
   console.log("\n--- 3. Thought Creation, Duplicate Detection & Deletion ---");
   const uniqueContent = `A very unique thought created for testing at ${Date.now()}`;
@@ -77,6 +87,25 @@ async function runTests() {
 
   const isDupSpaced = await ThoughtService.checkDuplicate(`   ${uniqueContent.toUpperCase()}   `);
   assert(isDupSpaced === true, "Case-insensitive and whitespace-normalized duplicate detected");
+
+  // 3b. Long Multi-Paragraph Thought Storage & Exact Retrieval
+  console.log("\n--- 3b. Long Thought Multi-Paragraph Integrity ---");
+  const multiParagraphStory = [
+    "Chapter 1: The Departure.\nIt was a rainy afternoon in late October when I decided to leave the only town I had ever known.",
+    "Chapter 2: The Journey.\nThe train rattled over old tracks, carrying people with quiet faces and unknown griefs. I watched the grey hills pass by.",
+    "Chapter 3: The Arrival.\nNow I am here, sitting in an unfamiliar room, listening to the rain fall on someone else's roof. I am finally beginning to heal.",
+  ].join("\n\n");
+
+  const longCreation = await ThoughtService.createThought({
+    content: multiParagraphStory,
+    category: "personal-growth",
+  });
+  assert(Boolean(longCreation.thought.id), "Long multi-paragraph thought created successfully");
+  const retrievedLong = await ThoughtService.getThoughtById(longCreation.thought.id);
+  assert(retrievedLong !== null && retrievedLong.content === multiParagraphStory, "Long thought content is preserved 100% identically with paragraphs and line breaks without truncation");
+
+  // Clean up long test thought
+  await ThoughtService.deleteThought(longCreation.thought.id, longCreation.deletionToken);
 
   // 4. Reactions
   console.log("\n--- 4. Supportive Reactions ---");

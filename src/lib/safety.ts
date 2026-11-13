@@ -55,6 +55,9 @@ function isGibberishOrRepetition(text: string): boolean {
   return false;
 }
 
+// Technical safety ceiling for server requests (100,000 characters)
+export const TECHNICAL_SAFETY_CEILING = 100000;
+
 /**
  * Evaluates a submitted thought against safety layers
  */
@@ -71,12 +74,13 @@ export function evaluateThoughtSafety(content: string): ModerationResult {
     };
   }
 
-  if (trimmed.length > 5000) {
+  // Generous technical safety ceiling (100,000 characters)
+  if (trimmed.length > TECHNICAL_SAFETY_CEILING) {
     return {
       allowed: false,
       status: "blocked",
       crisisDetected: false,
-      reason: "Thoughts are limited to 5,000 characters to keep reflections focused.",
+      reason: "Your reflection has reached the technical safety ceiling. If possible, consider sharing it in parts so nothing is lost.",
     };
   }
 

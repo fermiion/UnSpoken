@@ -15,6 +15,8 @@ import {
   Clock,
   Sparkles,
   Shield,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 interface ThoughtCardProps {
@@ -58,6 +60,9 @@ function formatRelativeTime(dateString: string): string {
   }
 }
 
+// Long thought threshold before showing comfortable fold toggle
+const LONG_CONTENT_CHAR_THRESHOLD = 900;
+
 export function ThoughtCard({
   thought,
   onDeleted,
@@ -76,6 +81,10 @@ export function ThoughtCard({
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [reacting, setReacting] = useState<string | null>(null);
+
+  // Accessible expand/collapse for very lengthy stories
+  const isLengthy = thought.content.length > LONG_CONTENT_CHAR_THRESHOLD;
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const handleReact = async (type: ReactionType) => {
     if (reacting || userReacted[type]) return;
@@ -105,7 +114,7 @@ export function ThoughtCard({
         }
       }
     } catch {
-      // Retain optimistic or retry gracefully
+      // Retain optimistic update
     } finally {
       setReacting(null);
     }
@@ -142,6 +151,9 @@ export function ThoughtCard({
       activeColor: "text-terracotta border-terracotta/40 bg-terracotta-muted/40",
     },
   ];
+
+  // Split content into clean paragraphs while preserving line breaks
+  const paragraphs = thought.content.split(/\n\s*\n/);
 
   return (
     <>
@@ -216,11 +228,45 @@ export function ThoughtCard({
           </div>
         </div>
 
-        {/* Thought Main Content in Lora serif */}
-        <div className="mb-6">
-          <p className="font-serif text-lg sm:text-xl text-text-primary leading-relaxed font-normal whitespace-pre-wrap select-text">
-            {thought.content}
-          </p>
+        {/* Thought Main Content in Lora serif with complete paragraph spacing */}
+        <div className="mb-6 relative">
+          <div
+            className={`space-y-4 font-serif text-lg sm:text-xl text-text-primary leading-relaxed font-normal select-text ${
+              isLengthy && !isExpanded
+                ? "max-h-[380px] overflow-hidden mask-gradient-b"
+                : ""
+            }`}
+          >
+            {paragraphs.map((para, idx) => (
+              <p key={idx} className="whitespace-pre-wrap">
+                {para}
+              </p>
+            ))}
+          </div>
+
+          {/* Accessible Expand/Collapse Button for lengthy stories */}
+          {isLengthy && (
+            <div className="pt-3">
+              <button
+                type="button"
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-terracotta hover:underline cursor-pointer py-1"
+                aria-expanded={isExpanded}
+              >
+                {isExpanded ? (
+                  <>
+                    <ChevronUp className="w-4 h-4" />
+                    <span>Show less</span>
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="w-4 h-4" />
+                    <span>Read full story</span>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Card Footer: Metadata and Reactions */}

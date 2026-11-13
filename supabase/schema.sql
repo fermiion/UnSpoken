@@ -10,7 +10,7 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- 1. THOUGHTS TABLE
 CREATE TABLE IF NOT EXISTS public.thoughts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    content TEXT NOT NULL CHECK (char_length(trim(content)) >= 3 AND char_length(content) <= 5000),
+    content TEXT NOT NULL CHECK (char_length(trim(content)) >= 3 AND char_length(content) <= 100000),
     content_hash TEXT NOT NULL,
     category TEXT NOT NULL DEFAULT 'unspoken',
     status TEXT NOT NULL DEFAULT 'published' CHECK (status IN ('published', 'held', 'removed')),
