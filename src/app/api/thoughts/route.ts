@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ThoughtService } from "@/lib/services/thoughtService";
 import { evaluateThoughtSafety, checkRateLimit } from "@/lib/safety";
+import { computeContentHash } from "@/lib/normalization";
+
+// Memory cache to detect rapid automated bot flooding of identical text from the same IP
+const recentSubmissionsByIp = new Map<string, { hash: string; time: number }>();
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,13 +26,13 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // 1. Rate Limiting Check (by IP)
+    // 1. Technical Abuse Prevention: Rate Limiting by IP
     const ip =
       request.headers.get("x-forwarded-for")?.split(",")[0] ||
       request.headers.get("x-real-ip") ||
       "anonymous-client";
 
-    const rateCheck = checkRateLimit(ip, 6, 60 * 1000);
+    const rateCheck = checkRateLimit(ip, 8, 60 * 1000);
     if (rateCheck.limited) {
       return NextResponse.json(
         {
@@ -39,7 +43,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { content, category, acknowledgeDuplicate } = body;
+    const { content, category } = body;
 
     if (!content || typeof content !== "string") {
       return NextResponse.json(
@@ -48,8 +52,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 2. Safety & Moderation screening
-    const safety = evaluateThoughtSafety(content);
+    const trimmedContent = content.trim();
+
+    // 2. Anti-Flooding: Detect automated rapid repeated submissions of the exact same content from the same IP (< 5 seconds)
+    const contentHash = computeContentHash(trimmedContent);
+    const lastFromIp = recentSubmissionsByIp.get(ip);
+    const now = Date.now();
+
+    if (lastFromIp && lastFromIp.hash === contentHash && now - lastFromIp.time < 5000) {
+      return NextResponse.json(
+        {
+          error: "Your thought was already received a moment ago.",
+        },
+        { status: 429 }
+      );
+    }
+
+    recentSubmissionsByIp.set(ip, { hash: contentHash, time: now });
+
+    // Clean up cache periodically
+    if (recentSubmissionsByIp.size > 2000) {
+      for (const [key, value] of recentSubmissionsByIp.entries()) {
+        if (now - value.time > 60000) {
+          recentSubmissionsByIp.delete(key);
+        }
+      }
+    }
+
+    // 3. Safety & Moderation screening (Harassment, threats, self-harm encouragement vs genuine emotional pain)
+    const safety = evaluateThoughtSafety(trimmedContent);
     if (!safety.allowed && safety.status === "blocked") {
       return NextResponse.json(
         { error: safety.reason || "Unable to publish this submission." },
@@ -57,26 +88,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 3. Duplicate Detection Check
-    const isDuplicate = await ThoughtService.checkDuplicate(content);
-    if (isDuplicate && !acknowledgeDuplicate) {
-      return NextResponse.json(
-        {
-          duplicateDetected: true,
-          message:
-            "It looks like this thought has already been shared. Would you still like to share it?",
-        },
-        { status: 409 }
-      );
-    }
-
-    // 4. Save Thought
+    // 4. Save Thought directly without any similarity blocking or confirmation modals
+    // Different people expressing similar or identical feelings are fully welcomed.
     const initialStatus = safety.status === "held" ? "held" : "published";
     const result = await ThoughtService.createThought({
-      content: content.trim(),
+      content: trimmedContent,
       category: category || "unspoken",
       status: initialStatus,
-      is_duplicate_acknowledged: Boolean(isDuplicate && acknowledgeDuplicate),
     });
 
     return NextResponse.json(
