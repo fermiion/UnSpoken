@@ -267,7 +267,84 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* 6. SAFETY AND SUPPORT SECTION */}
+        {/* 6. A LITTLE WARMTH FOR YOU (Personal Letter) */}
+        <section className="py-16 sm:py-24 px-4 sm:px-6 border-t border-border-subtle bg-bg-surface/10 relative overflow-hidden">
+          <div className="max-w-3xl mx-auto">
+            <article
+              aria-label="A Little Warmth for You"
+              className="relative rounded-3xl bg-bg-surface border border-border-subtle p-8 sm:p-14 md:p-16 space-y-8 shadow-sm transition-shadow duration-300 hover:shadow-md"
+            >
+              {/* Letter Header / Stamp */}
+              <div className="flex items-center justify-between border-b border-border-subtle/80 pb-6">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-terracotta-muted flex items-center justify-center text-terracotta">
+                    <Sparkles className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-semibold uppercase tracking-widest text-terracotta block">
+                      A Little Warmth for You
+                    </span>
+                    <span className="text-[11px] text-text-muted font-mono tracking-wide">
+                      A quiet letter for the silent hearts
+                    </span>
+                  </div>
+                </div>
+                <span className="text-xs font-serif italic text-text-muted select-none">
+                  UnSpoken Sanctuary
+                </span>
+              </div>
+
+              {/* Salutation */}
+              <div className="space-y-3">
+                <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-text-primary font-normal leading-snug">
+                  To the ones who feel everything, but say so little.
+                </h2>
+                <div className="w-12 h-0.5 bg-terracotta/40 rounded-full" />
+              </div>
+
+              {/* Letter Body */}
+              <div className="font-serif text-text-secondary text-base sm:text-lg leading-[1.85] sm:leading-[1.95] space-y-6 font-light">
+                <p>
+                  To the ones who walk softly into rooms, carrying galaxies of emotion behind a steady smile.
+                  To the ones who listen endlessly to everyone else&apos;s grief, but swallow their own when asked how they are doing.
+                </p>
+
+                <p>
+                  You spend so much time making sure everyone else has a soft place to land. You notice the shifts in other people&apos;s voices, the hesitation in their eyes, the unspoken sorrows they try so hard to hide. You give your grace away freely, yet you rarely save any for yourself.
+                </p>
+
+                <p>
+                  We want you to know: you do not have to be the strong one here. You do not have to hold up the sky all by yourself, and your pain is never an inconvenience or a burden to this space. It is okay if today was heavy. It is okay if you don&apos;t have the answers, or the energy to explain why your heart feels tired.
+                </p>
+
+                <p>
+                  Whatever you are holding, whatever you cannot say out loud to the world outside—you don&apos;t have to keep it locked away inside your chest.
+                </p>
+
+                <p className="text-text-primary font-normal italic">
+                  Even when the world feels too loud and your voice feels too quiet, your presence matters deeply. You are seen, you are heard, and you are never as alone as the silence makes you feel.
+                </p>
+              </div>
+
+              {/* Letter Sign-off */}
+              <div className="pt-6 border-t border-border-subtle/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="space-y-1">
+                  <p className="font-serif italic text-sm text-text-muted">
+                    With quiet warmth and gentle care,
+                  </p>
+                  <p className="font-serif text-lg font-medium text-terracotta">
+                    UnSpoken
+                  </p>
+                </div>
+                <div className="text-xs text-text-muted font-sans font-light">
+                  A place for everything left unsaid.
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        {/* 7. SAFETY AND SUPPORT SECTION */}
         <section className="py-16 sm:py-20 px-4 sm:px-6 border-t border-border-subtle">
           <div className="max-w-4xl mx-auto space-y-8">
             <div className="text-center space-y-3">
