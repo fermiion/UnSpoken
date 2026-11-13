@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Check, Copy, CheckCheck, KeyRound, ArrowRight, ShieldCheck } from "lucide-react";
+import { Check, Copy, CheckCheck, KeyRound, ArrowRight, X } from "lucide-react";
 
 interface SuccessModalProps {
   isOpen: boolean;
@@ -21,6 +21,18 @@ export function SuccessModal({
 }: SuccessModalProps) {
   const [copied, setCopied] = useState(false);
 
+  // Close on Escape key press
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleCopy = () => {
@@ -37,6 +49,17 @@ export function SuccessModal({
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-sm animate-in fade-in duration-200"
     >
       <div className="relative w-full max-w-lg rounded-2xl bg-bg-surface border border-border-strong shadow-2xl p-6 sm:p-8 text-text-primary space-y-6">
+        {/* Subtle, accessible Top-Right Close Button */}
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-xl text-text-secondary hover:text-text-primary bg-bg-surface hover:bg-bg-elevated border border-transparent hover:border-border-subtle transition-all duration-150 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta"
+          aria-label="Close modal"
+          title="Close modal"
+        >
+          <X className="w-5 h-5 transition-transform duration-150 hover:rotate-90" />
+        </button>
+
         <div className="w-14 h-14 rounded-full bg-sage-muted text-sage flex items-center justify-center mx-auto">
           <Check className="w-7 h-7" />
         </div>
@@ -76,7 +99,7 @@ export function SuccessModal({
             <button
               type="button"
               onClick={handleCopy}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-lg text-xs font-medium bg-terracotta text-bg-primary hover:bg-terracotta-hover transition-colors shrink-0"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-lg text-xs font-medium bg-terracotta text-bg-primary hover:bg-terracotta-hover transition-colors shrink-0 cursor-pointer"
               aria-label="Copy secret deletion key to clipboard"
             >
               {copied ? (
@@ -98,7 +121,7 @@ export function SuccessModal({
           <button
             type="button"
             onClick={onReset}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-lg text-sm text-text-secondary hover:text-text-primary hover:bg-bg-elevated transition-colors text-center"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-lg text-sm text-text-secondary hover:text-text-primary hover:bg-bg-elevated transition-colors text-center cursor-pointer"
           >
             Write another thought
           </button>
@@ -106,7 +129,7 @@ export function SuccessModal({
           <Link
             href="/explore"
             onClick={onClose}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium bg-terracotta text-bg-primary hover:bg-terracotta-hover transition-colors"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium bg-terracotta text-bg-primary hover:bg-terracotta-hover transition-colors cursor-pointer"
           >
             <span>Read other stories</span>
             <ArrowRight className="w-4 h-4" />
