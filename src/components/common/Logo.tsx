@@ -15,9 +15,9 @@ export function Logo({
   href = "/",
 }: LogoProps) {
   const iconDimensions = {
-    sm: { w: 24, h: 24, stroke: 1.8, r: 2.2 },
-    md: { w: 32, h: 32, stroke: 2, r: 3 },
-    lg: { w: 44, h: 44, stroke: 2.2, r: 4.2 },
+    sm: { w: 22, h: 22, stroke: 1.8, r: 2.2 },
+    md: { w: 28, h: 28, stroke: 2, r: 2.8 },
+    lg: { w: 38, h: 38, stroke: 2.2, r: 3.8 },
   }[size];
 
   const textSize = {
@@ -35,12 +35,12 @@ export function Logo({
         viewBox="0 0 36 36"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="transition-transform duration-300 group-hover:scale-105"
+        className="transition-transform duration-300 group-hover:scale-105 shrink-0"
         aria-hidden="true"
       >
         <defs>
           <radialGradient
-            id="centerGlow"
+            id="logoCenterGlow"
             cx="50%"
             cy="50%"
             r="50%"
@@ -53,7 +53,7 @@ export function Logo({
           </radialGradient>
         </defs>
 
-        {/* Outer Listening Arc / Safe Haven (Open circle embracing silence) */}
+        {/* Outer Listening Arc / Safe Haven */}
         <path
           d="M 18 4 A 14 14 0 1 1 5.5 22.5"
           stroke="var(--terracotta)"
@@ -63,7 +63,7 @@ export function Logo({
           className="transition-colors duration-300"
         />
 
-        {/* Soft Inner Listening Ripple */}
+        {/* Soft Inner Ripple */}
         <path
           d="M 18 9 A 9 9 0 0 1 26 21"
           stroke="var(--sage)"
@@ -72,8 +72,8 @@ export function Logo({
           strokeOpacity="0.75"
         />
 
-        {/* Gentle Ambient Radiance behind central light */}
-        <circle cx="18" cy="18" r="8" fill="url(#centerGlow)" opacity="0.3" />
+        {/* Gentle Ambient Radiance */}
+        <circle cx="18" cy="18" r="8" fill="url(#logoCenterGlow)" opacity="0.3" />
 
         {/* Central Light emerging from silence */}
         <circle
@@ -88,7 +88,7 @@ export function Logo({
 
       {showWordmark && (
         <span
-          className={`font-serif tracking-tight font-medium text-text-primary ${textSize} transition-colors duration-200`}
+          className={`font-brand tracking-tight font-medium text-text-primary ${textSize} transition-colors duration-200`}
         >
           UnSpoken<span className="text-terracotta">.</span>
         </span>
@@ -100,7 +100,7 @@ export function Logo({
     return (
       <Link
         href={href}
-        className="focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta rounded-md"
+        className="focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta rounded-lg inline-flex items-center"
         aria-label="UnSpoken - Return to home"
       >
         {content}

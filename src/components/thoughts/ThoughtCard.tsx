@@ -14,6 +14,7 @@ import {
   Trash2,
   Clock,
   Sparkles,
+  Shield,
 } from "lucide-react";
 
 interface ThoughtCardProps {
@@ -104,7 +105,7 @@ export function ThoughtCard({
         }
       }
     } catch {
-      // Keep optimistic update or silently retry
+      // Retain optimistic or retry gracefully
     } finally {
       setReacting(null);
     }
@@ -120,42 +121,48 @@ export function ThoughtCard({
       type: "hear_you",
       label: "I hear you",
       icon: Heart,
-      activeColor: "text-terracotta border-terracotta/40 bg-terracotta-muted/30",
+      activeColor: "text-terracotta border-terracotta/40 bg-terracotta-muted/40",
     },
     {
       type: "not_alone",
       label: "You're not alone",
       icon: Users,
-      activeColor: "text-sage border-sage/40 bg-sage-muted/30",
+      activeColor: "text-sage border-sage/40 bg-sage-muted/40",
     },
     {
       type: "warmth",
       label: "Sending warmth",
       icon: SunMedium,
-      activeColor: "text-amber-500 border-amber-500/40 bg-amber-500/10",
+      activeColor: "text-amber-500 border-amber-500/40 bg-amber-500/15",
     },
     {
       type: "understand",
       label: "I understand",
       icon: CheckCircle2,
-      activeColor: "text-terracotta border-terracotta/40 bg-terracotta-muted/30",
+      activeColor: "text-terracotta border-terracotta/40 bg-terracotta-muted/40",
     },
   ];
 
   return (
     <>
       <article
-        className={`group relative rounded-2xl bg-bg-surface border border-border-subtle hover:border-border-strong p-6 sm:p-7 transition-all duration-200 shadow-sm hover:shadow-md ${className}`}
+        className={`group relative rounded-2xl bg-bg-surface border border-border-subtle hover:border-border-strong p-6 sm:p-8 transition-all duration-200 shadow-xs hover:shadow-md ${className}`}
       >
         {/* Top Header Row */}
-        <div className="flex items-center justify-between text-xs text-text-muted mb-4">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-bg-elevated border border-border-subtle text-text-secondary font-medium">
+        <div className="flex items-center justify-between gap-3 text-xs text-text-muted mb-5">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-bg-elevated border border-border-subtle text-text-secondary text-xs font-medium">
               <Sparkles className="w-3 h-3 text-terracotta" />
-              {CATEGORY_MAP[thought.category] || "Unspoken Thought"}
+              <span>{CATEGORY_MAP[thought.category] || "Unspoken Thought"}</span>
             </span>
 
-            <span className="flex items-center gap-1 text-text-muted">
+            {thought.is_demonstration && (
+              <span className="text-[10px] uppercase tracking-wider text-text-muted px-2 py-0.5 rounded-md bg-bg-elevated/70 border border-border-subtle">
+                Demo sample
+              </span>
+            )}
+
+            <span className="inline-flex items-center gap-1 text-text-muted text-xs">
               <Clock className="w-3 h-3" />
               <time dateTime={thought.created_at}>
                 {formatRelativeTime(thought.created_at)}
@@ -168,7 +175,7 @@ export function ThoughtCard({
             <button
               type="button"
               onClick={() => setMenuOpen(!menuOpen)}
-              className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-elevated transition-colors"
+              className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-elevated transition-colors cursor-pointer"
               aria-label="Thought options"
             >
               <MoreHorizontal className="w-4 h-4" />
@@ -180,14 +187,14 @@ export function ThoughtCard({
                   className="fixed inset-0 z-10"
                   onClick={() => setMenuOpen(false)}
                 />
-                <div className="absolute right-0 top-7 z-20 w-44 rounded-xl bg-bg-elevated border border-border-strong shadow-xl py-1 text-xs animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute right-0 top-8 z-20 w-48 rounded-xl bg-bg-elevated border border-border-strong shadow-xl py-1 text-xs">
                   <button
                     type="button"
                     onClick={() => {
                       setMenuOpen(false);
                       setReportModalOpen(true);
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-text-secondary hover:text-text-primary hover:bg-bg-surface text-left transition-colors"
+                    className="w-full flex items-center gap-2 px-3.5 py-2 text-text-secondary hover:text-text-primary hover:bg-bg-surface text-left transition-colors cursor-pointer"
                   >
                     <Flag className="w-3.5 h-3.5 text-text-muted" />
                     <span>Report thought</span>
@@ -198,7 +205,7 @@ export function ThoughtCard({
                       setMenuOpen(false);
                       setDeleteModalOpen(true);
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-text-secondary hover:text-red-400 hover:bg-bg-surface text-left transition-colors"
+                    className="w-full flex items-center gap-2 px-3.5 py-2 text-text-secondary hover:text-red-400 hover:bg-bg-surface text-left transition-colors cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>I am the author (Delete)</span>
@@ -209,21 +216,21 @@ export function ThoughtCard({
           </div>
         </div>
 
-        {/* Thought Main Content */}
+        {/* Thought Main Content in Lora serif */}
         <div className="mb-6">
-          <p className="font-serif text-lg sm:text-xl text-text-primary leading-relaxed whitespace-pre-wrap select-text">
+          <p className="font-serif text-lg sm:text-xl text-text-primary leading-relaxed font-normal whitespace-pre-wrap select-text">
             {thought.content}
           </p>
         </div>
 
-        {/* Author Label & Supportive Reactions Bar */}
-        <div className="pt-4 border-t border-border-subtle/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        {/* Card Footer: Metadata and Reactions */}
+        <div className="pt-4 border-t border-border-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="text-xs text-text-muted flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-terracotta/60"></span>
+            <Shield className="w-3.5 h-3.5 text-sage" />
             <span>Shared anonymously</span>
           </div>
 
-          {/* 4 Supportive Reaction Buttons */}
+          {/* Supportive Reactions Grid */}
           <div
             className="flex flex-wrap items-center gap-2"
             role="group"
@@ -239,12 +246,12 @@ export function ThoughtCard({
                   key={btn.type}
                   type="button"
                   onClick={() => handleReact(btn.type)}
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all duration-150 ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all duration-150 cursor-pointer ${
                     isSelected
                       ? btn.activeColor
-                      : "border-border-subtle bg-bg-elevated/50 text-text-secondary hover:text-text-primary hover:border-border-strong active:scale-95"
+                      : "border-border-subtle bg-bg-elevated/60 text-text-secondary hover:text-text-primary hover:border-border-strong active:scale-95"
                   }`}
-                  aria-label={`${btn.label} (${count} people sent support)`}
+                  aria-label={`${btn.label} (${count} responses)`}
                   title={btn.label}
                 >
                   <Icon
@@ -254,7 +261,7 @@ export function ThoughtCard({
                   />
                   <span>{btn.label}</span>
                   {count > 0 && (
-                    <span className="opacity-75 font-mono text-[11px] ml-0.5">
+                    <span className="font-mono text-[11px] opacity-80 ml-0.5">
                       {count}
                     </span>
                   )}

@@ -133,10 +133,10 @@ export default function ExplorePage() {
                   role="tab"
                   aria-selected={isSelected}
                   onClick={() => handleCategoryChange(cat.id)}
-                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-150 border ${
+                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-150 border cursor-pointer ${
                     isSelected
-                      ? "bg-terracotta text-bg-primary border-terracotta shadow-sm font-semibold"
-                      : "bg-bg-surface border-border-subtle text-text-secondary hover:text-text-primary hover:border-border-strong"
+                      ? "bg-terracotta text-bg-primary border-terracotta shadow-xs font-semibold"
+                      : "bg-bg-surface border-border-subtle text-text-secondary hover:text-text-primary hover:border-border-strong hover:bg-bg-elevated/40"
                   }`}
                 >
                   {cat.label}
@@ -191,7 +191,7 @@ export default function ExplorePage() {
                   type="button"
                   onClick={() => fetchThoughts(page + 1, selectedCategory, true)}
                   disabled={loadingMore}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium bg-bg-surface border border-border-subtle hover:border-border-strong text-text-primary transition-all duration-150 disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-semibold tracking-wide uppercase bg-bg-surface border border-border-subtle hover:border-border-strong text-text-primary transition-all duration-150 disabled:opacity-50 cursor-pointer shadow-xs active:scale-[0.99]"
                 >
                   {loadingMore ? (
                     <>

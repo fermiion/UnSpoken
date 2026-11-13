@@ -20,6 +20,7 @@ export interface Thought {
   published_at: string;
   deletion_token_hash: string;
   is_duplicate_acknowledged: boolean;
+  is_demonstration?: boolean;
   reactions_count: {
     hear_you: number;
     not_alone: number;
@@ -34,6 +35,7 @@ export interface PublicThought {
   category: string;
   created_at: string;
   published_at: string;
+  is_demonstration?: boolean;
   reactions_count: {
     hear_you: number;
     not_alone: number;
@@ -78,6 +80,7 @@ const INITIAL_SEEDS: Thought[] = [
     published_at: new Date(Date.now() - 3600000 * 2).toISOString(),
     deletion_token_hash: hashDeletionToken("seed-token-1"),
     is_duplicate_acknowledged: false,
+    is_demonstration: true,
     reactions_count: { hear_you: 14, not_alone: 22, warmth: 19, understand: 11 },
   },
   {
@@ -90,6 +93,7 @@ const INITIAL_SEEDS: Thought[] = [
     published_at: new Date(Date.now() - 3600000 * 6).toISOString(),
     deletion_token_hash: hashDeletionToken("seed-token-2"),
     is_duplicate_acknowledged: false,
+    is_demonstration: true,
     reactions_count: { hear_you: 31, not_alone: 18, warmth: 25, understand: 17 },
   },
   {
@@ -102,6 +106,7 @@ const INITIAL_SEEDS: Thought[] = [
     published_at: new Date(Date.now() - 3600000 * 12).toISOString(),
     deletion_token_hash: hashDeletionToken("seed-token-3"),
     is_duplicate_acknowledged: false,
+    is_demonstration: true,
     reactions_count: { hear_you: 28, not_alone: 9, warmth: 42, understand: 16 },
   },
   {
@@ -114,6 +119,7 @@ const INITIAL_SEEDS: Thought[] = [
     published_at: new Date(Date.now() - 3600000 * 24).toISOString(),
     deletion_token_hash: hashDeletionToken("seed-token-4"),
     is_duplicate_acknowledged: false,
+    is_demonstration: true,
     reactions_count: { hear_you: 45, not_alone: 52, warmth: 27, understand: 38 },
   },
 ];
@@ -163,6 +169,7 @@ function toPublicThought(t: Thought): PublicThought {
     category: t.category,
     created_at: t.created_at,
     published_at: t.published_at,
+    is_demonstration: t.is_demonstration,
     reactions_count: t.reactions_count || {
       hear_you: 0,
       not_alone: 0,

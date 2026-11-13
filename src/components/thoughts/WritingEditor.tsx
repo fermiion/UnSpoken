@@ -86,7 +86,6 @@ export function WritingEditor({
       const data = await res.json();
 
       if (res.status === 409 && data.duplicateDetected) {
-        // Show duplicate warning dialog
         setDuplicateModalOpen(true);
         setSubmitting(false);
         return;
@@ -124,12 +123,12 @@ export function WritingEditor({
   return (
     <>
       <div
-        className={`rounded-2xl bg-bg-surface border border-border-subtle shadow-md p-6 sm:p-8 transition-colors duration-200 ${className}`}
+        className={`rounded-3xl bg-bg-surface border border-border-subtle shadow-md p-6 sm:p-9 transition-colors duration-200 ${className}`}
       >
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6 pb-4 border-b border-border-subtle">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-5 border-b border-border-subtle">
           <div>
-            <h2 className="font-serif text-2xl sm:text-3xl font-medium text-text-primary tracking-tight flex items-center gap-2">
+            <h2 className="font-serif text-2xl sm:text-3xl font-medium text-text-primary tracking-tight flex items-center gap-2.5">
               <Feather className="w-5 h-5 text-terracotta" />
               <span>Let it out.</span>
             </h2>
@@ -138,8 +137,8 @@ export function WritingEditor({
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-text-muted">
-            <ShieldCheck className="w-4 h-4 text-sage shrink-0" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-bg-elevated border border-border-subtle text-xs text-text-muted self-start sm:self-center">
+            <ShieldCheck className="w-3.5 h-3.5 text-sage shrink-0" />
             <span>Completely anonymous</span>
           </div>
         </div>
@@ -151,27 +150,27 @@ export function WritingEditor({
 
         {/* Error notification */}
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/25 text-xs text-red-400 flex items-start gap-2.5">
+          <div className="mb-5 p-3.5 rounded-xl bg-red-500/10 border border-red-500/25 text-xs text-red-400 flex items-start gap-2.5">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <p className="leading-relaxed">{error}</p>
           </div>
         )}
 
         {/* Category Selector */}
-        <div className="mb-4">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-2">
-            Select a theme (optional)
+        <div className="mb-5">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2.5">
+            Choose a theme (optional)
           </label>
-          <div className="flex flex-wrap gap-1.5 sm:gap-2">
+          <div className="flex flex-wrap gap-2">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.id}
                 type="button"
                 onClick={() => setCategory(cat.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
                   category === cat.id
                     ? "bg-terracotta-muted border-terracotta text-terracotta font-semibold"
-                    : "bg-bg-elevated/40 border-border-subtle text-text-secondary hover:border-border-strong hover:text-text-primary"
+                    : "bg-bg-elevated/50 border-border-subtle text-text-secondary hover:border-border-strong hover:text-text-primary"
                 }`}
               >
                 {cat.label}
@@ -180,33 +179,31 @@ export function WritingEditor({
           </div>
         </div>
 
-        {/* Journal Writing Area */}
-        <div className="space-y-2 mb-4">
-          <div className="relative">
-            <textarea
-              value={content}
-              onChange={(e) => {
-                setContent(e.target.value);
-                if (error) setError(null);
-              }}
-              placeholder="Start writing... There is no need to explain or justify. Just let the thoughts leave your mind."
-              rows={isStandalonePage ? 10 : 6}
-              maxLength={MAX_CHARS + 50}
-              className={`w-full rounded-xl bg-input-bg border p-4 sm:p-5 text-base sm:text-lg font-serif text-text-primary placeholder:font-sans placeholder:text-text-muted placeholder:text-sm focus:outline-none transition-colors resize-y leading-relaxed ${
-                isTooLong
-                  ? "border-red-500 focus:border-red-500"
-                  : "border-border-subtle focus:border-terracotta"
-              }`}
-            />
-          </div>
+        {/* Journal Writing Textarea */}
+        <div className="space-y-2.5 mb-5">
+          <textarea
+            value={content}
+            onChange={(e) => {
+              setContent(e.target.value);
+              if (error) setError(null);
+            }}
+            placeholder="What's been on your mind lately? Start typing freely..."
+            rows={isStandalonePage ? 11 : 7}
+            maxLength={MAX_CHARS + 50}
+            className={`w-full rounded-2xl bg-input-bg border p-4 sm:p-5 text-base sm:text-lg font-serif text-text-primary placeholder:font-sans placeholder:text-text-muted placeholder:text-sm focus:outline-none transition-colors resize-y leading-relaxed min-h-[170px] ${
+              isTooLong
+                ? "border-red-500 focus:border-red-500"
+                : "border-border-subtle focus:border-terracotta"
+            }`}
+          />
 
           {/* Character Counter & Guidelines Note */}
           <div className="flex items-center justify-between text-xs text-text-muted px-1">
             <Link
               href="/guidelines"
-              className="hover:text-text-secondary inline-flex items-center gap-1 transition-colors"
+              className="hover:text-text-secondary inline-flex items-center gap-1.5 transition-colors"
             >
-              <HelpCircle className="w-3.5 h-3.5" />
+              <HelpCircle className="w-3.5 h-3.5 text-sage" />
               <span>Community guidelines</span>
             </Link>
 
@@ -216,7 +213,7 @@ export function WritingEditor({
           </div>
         </div>
 
-        {/* Footer Actions */}
+        {/* Card Footer Actions */}
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-text-muted text-center sm:text-left">
             Your identity stays hidden from other visitors. You will receive a private deletion key.
@@ -226,7 +223,7 @@ export function WritingEditor({
             type="button"
             onClick={() => handleSubmit(false)}
             disabled={submitting || isTooShort || isTooLong}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-medium bg-terracotta text-bg-primary hover:bg-terracotta-hover transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm active:scale-[0.99]"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-xs font-semibold tracking-wide uppercase bg-terracotta text-bg-primary hover:bg-terracotta-hover transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm active:scale-[0.98] cursor-pointer"
           >
             {submitting ? (
               <>
