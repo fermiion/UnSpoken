@@ -68,14 +68,6 @@ export function ThoughtCard({
   onDeleted,
   className = "",
 }: ThoughtCardProps) {
-  const [reactions, setReactions] = useState(
-    thought.reactions_count || {
-      hear_you: 0,
-      not_alone: 0,
-      warmth: 0,
-      understand: 0,
-    }
-  );
   const [userReacted, setUserReacted] = useState<Record<string, boolean>>({});
   const [menuOpen, setMenuOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
@@ -90,31 +82,16 @@ export function ThoughtCard({
     if (reacting || userReacted[type]) return;
 
     setReacting(type);
-    // Optimistic update
-    setReactions((prev) => ({
-      ...prev,
-      [type]: (prev[type] || 0) + 1,
-    }));
     setUserReacted((prev) => ({ ...prev, [type]: true }));
 
     try {
-      const res = await fetch(`/api/thoughts/${thought.id}/react`, {
+      await fetch(`/api/thoughts/${thought.id}/react`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reactionType: type }),
       });
-
-      if (res.ok) {
-        const data = await res.json();
-        if (typeof data.newCount === "number") {
-          setReactions((prev) => ({
-            ...prev,
-            [type]: data.newCount,
-          }));
-        }
-      }
     } catch {
-      // Retain optimistic update
+      // Retain optimistic selected state
     } finally {
       setReacting(null);
     }
@@ -269,14 +246,14 @@ export function ThoughtCard({
           )}
         </div>
 
-        {/* Card Footer: Metadata and Reactions */}
+        {/* Card Footer: Metadata and Supportive Reactions without Numerical Metrics */}
         <div className="pt-4 border-t border-border-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="text-xs text-text-muted flex items-center gap-1.5">
             <Shield className="w-3.5 h-3.5 text-sage" />
             <span>Shared anonymously</span>
           </div>
 
-          {/* Supportive Reactions Grid */}
+          {/* Supportive Reactions Grid - Pure Kindness, No Numerical Counts */}
           <div
             className="flex flex-wrap items-center gap-2"
             role="group"
@@ -284,7 +261,6 @@ export function ThoughtCard({
           >
             {reactionButtons.map((btn) => {
               const Icon = btn.icon;
-              const count = reactions[btn.type] || 0;
               const isSelected = userReacted[btn.type];
 
               return (
@@ -292,13 +268,14 @@ export function ThoughtCard({
                   key={btn.type}
                   type="button"
                   onClick={() => handleReact(btn.type)}
+                  aria-pressed={isSelected}
+                  aria-label={isSelected ? `${btn.label} (sent)` : btn.label}
+                  title={btn.label}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all duration-150 cursor-pointer ${
                     isSelected
                       ? btn.activeColor
                       : "border-border-subtle bg-bg-elevated/60 text-text-secondary hover:text-text-primary hover:border-border-strong active:scale-95"
                   }`}
-                  aria-label={`${btn.label} (${count} responses)`}
-                  title={btn.label}
                 >
                   <Icon
                     className={`w-3.5 h-3.5 ${
@@ -306,11 +283,6 @@ export function ThoughtCard({
                     }`}
                   />
                   <span>{btn.label}</span>
-                  {count > 0 && (
-                    <span className="font-mono text-[11px] opacity-80 ml-0.5">
-                      {count}
-                    </span>
-                  )}
                 </button>
               );
             })}

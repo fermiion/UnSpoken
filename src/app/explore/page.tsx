@@ -126,14 +126,9 @@ export default function ExplorePage() {
 
         {/* Filter Category Chips with Distinguishable Visual Icons */}
         <div className="space-y-2.5">
-          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-text-muted px-1">
-            <span className="flex items-center gap-1.5">
-              <Filter className="w-3.5 h-3.5" />
-              <span>Browse by theme</span>
-            </span>
-            <span className="font-normal lowercase text-text-muted">
-              {thoughts.length} {thoughts.length === 1 ? "reflection" : "reflections"} shown
-            </span>
+          <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-text-muted px-1">
+            <Filter className="w-3.5 h-3.5 text-terracotta" />
+            <span>Browse by theme</span>
           </div>
 
           <div
