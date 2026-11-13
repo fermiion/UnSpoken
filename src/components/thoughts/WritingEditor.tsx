@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { DuplicateWarningModal } from "./DuplicateWarningModal";
 import { SuccessModal } from "./SuccessModal";
 import { CrisisSupportBanner } from "@/components/common/CrisisSupportBanner";
 import {
@@ -46,9 +45,6 @@ export function WritingEditor({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Duplicate detection state
-  const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
-
   // Success state
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [deletionToken, setDeletionToken] = useState("");
@@ -76,7 +72,7 @@ export function WritingEditor({
   const isTooShort = content.trim().length < 3;
   const isOverCeiling = content.length > TECHNICAL_SAFETY_CEILING;
 
-  const handleSubmit = async (acknowledgeDuplicate = false) => {
+  const handleSubmit = async () => {
     if (isTooShort) {
       setError("Please write at least a few words to share.");
       return;
@@ -98,29 +94,21 @@ export function WritingEditor({
         body: JSON.stringify({
           content: content.trim(),
           category,
-          acknowledgeDuplicate,
         }),
       });
 
       const data = await res.json();
 
-      if (res.status === 409 && data.duplicateDetected) {
-        setDuplicateModalOpen(true);
-        setSubmitting(false);
-        return;
-      }
-
       if (!res.ok) {
         throw new Error(data.error || "Failed to share thought.");
       }
 
-      // Success
+      // Success - publish directly without any similarity blocking or confirmation modals
       setDeletionToken(data.deletionToken);
       setIsHeld(data.status === "held");
       if (data.crisisDetected && data.crisisMessage) {
         setCrisisMessage(data.crisisMessage);
       }
-      setDuplicateModalOpen(false);
       setSuccessModalOpen(true);
       onSuccess?.();
     } catch (err: any) {
@@ -258,7 +246,7 @@ export function WritingEditor({
 
           <button
             type="button"
-            onClick={() => handleSubmit(false)}
+            onClick={handleSubmit}
             disabled={submitting || isTooShort || isOverCeiling}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-xs font-semibold tracking-wide uppercase bg-terracotta text-bg-primary hover:bg-terracotta-hover transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm active:scale-[0.98] cursor-pointer shrink-0"
           >
@@ -276,14 +264,6 @@ export function WritingEditor({
           </button>
         </div>
       </div>
-
-      {/* Duplicate Detection Warning Modal */}
-      <DuplicateWarningModal
-        isOpen={duplicateModalOpen}
-        submitting={submitting}
-        onGoBack={() => setDuplicateModalOpen(false)}
-        onSubmitAnyway={() => handleSubmit(true)}
-      />
 
       {/* Success Modal */}
       <SuccessModal

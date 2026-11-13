@@ -71,22 +71,31 @@ async function runTests() {
   const oversizedCheck = evaluateThoughtSafety(oversizedText);
   assert(!oversizedCheck.allowed && oversizedCheck.status === "blocked", "Texts exceeding the 100,000 char technical ceiling are gracefully caught with safety reason");
 
-  // 3. Thought Creation & Duplicate Detection
-  console.log("\n--- 3. Thought Creation, Duplicate Detection & Deletion ---");
-  const uniqueContent = `A very unique thought created for testing at ${Date.now()}`;
-  const creation = await ThoughtService.createThought({
-    content: uniqueContent,
+  // 3. Thought Creation & Separate Authors Sharing Identical Words
+  console.log("\n--- 3. Thought Creation & Multiple Authors with Identical Words ---");
+  const sharedFeeling = `I miss how simple life used to be when we were children (${Date.now()})`;
+  
+  // Author A submits
+  const authorA = await ThoughtService.createThought({
+    content: sharedFeeling,
     category: "hope",
   });
-  assert(Boolean(creation.thought.id), "Thought created with public ID");
-  assert(Boolean(creation.deletionToken), "Secure deletion token returned to author");
+  assert(Boolean(authorA.thought.id), "Author A's thought published directly");
+  assert(Boolean(authorA.deletionToken), "Author A receives unique deletion token");
 
-  // Check duplicate detection
-  const isDup = await ThoughtService.checkDuplicate(uniqueContent);
-  assert(isDup === true, "Identical content detected as duplicate");
+  // Author B submits identical words (never blocked or discouraged)
+  const authorB = await ThoughtService.createThought({
+    content: sharedFeeling,
+    category: "hope",
+  });
+  assert(Boolean(authorB.thought.id), "Author B's identical thought published directly without blocking");
+  assert(Boolean(authorB.deletionToken), "Author B receives their own distinct deletion token");
+  assert(authorA.thought.id !== authorB.thought.id, "Both authors have distinct independent thought IDs");
+  assert(authorA.deletionToken !== authorB.deletionToken, "Both authors have distinct secret deletion tokens");
 
-  const isDupSpaced = await ThoughtService.checkDuplicate(`   ${uniqueContent.toUpperCase()}   `);
-  assert(isDupSpaced === true, "Case-insensitive and whitespace-normalized duplicate detected");
+  // Internal hash exists for internal abuse tracking
+  const internalDupSignal = await ThoughtService.checkDuplicate(sharedFeeling);
+  assert(internalDupSignal === true, "Internal content hash matches for internal telemetry without blocking authors");
 
   // 3b. Long Multi-Paragraph Thought Storage & Exact Retrieval
   console.log("\n--- 3b. Long Thought Multi-Paragraph Integrity ---");
@@ -109,13 +118,13 @@ async function runTests() {
 
   // 4. Reactions
   console.log("\n--- 4. Supportive Reactions ---");
-  const reactResult = await ThoughtService.addReaction(creation.thought.id, "warmth");
+  const reactResult = await ThoughtService.addReaction(authorA.thought.id, "warmth");
   assert(reactResult.success && reactResult.newCount >= 1, "Supportive reaction incremented successfully");
 
   // 5. Reporting
   console.log("\n--- 5. Discreet Reporting ---");
   const reportResult = await ThoughtService.reportThought({
-    thoughtId: creation.thought.id,
+    thoughtId: authorA.thought.id,
     category: "other",
     description: "Testing report flow",
   });
@@ -130,19 +139,22 @@ async function runTests() {
   assert(verifyAdminToken(adminToken), "Admin session HMAC verifies");
 
   const queue = await ThoughtService.getModerationQueue();
-  const reportedItem = queue.reports.find(r => r.thought_id === creation.thought.id);
+  const reportedItem = queue.reports.find(r => r.thought_id === authorA.thought.id);
   assert(Boolean(reportedItem), "Reported thought appears in moderation queue");
 
   // 7. Author Deletion
   console.log("\n--- 7. Cryptographic Author Deletion ---");
-  const badDelete = await ThoughtService.deleteThought(creation.thought.id, "wrong-key");
+  const badDelete = await ThoughtService.deleteThought(authorA.thought.id, "wrong-key");
   assert(!badDelete.success, "Deletion with wrong key fails");
 
-  const goodDelete = await ThoughtService.deleteThought(creation.thought.id, creation.deletionToken);
+  const goodDelete = await ThoughtService.deleteThought(authorA.thought.id, authorA.deletionToken);
   assert(goodDelete.success, "Deletion with author's valid secret key succeeds permanently");
 
-  const afterDelete = await ThoughtService.getThoughtById(creation.thought.id);
+  const afterDelete = await ThoughtService.getThoughtById(authorA.thought.id);
   assert(afterDelete === null, "Thought is completely purged from published store");
+
+  // Clean up author B's thought too
+  await ThoughtService.deleteThought(authorB.thought.id, authorB.deletionToken);
 
   console.log("\n=================================================");
   console.log(`   Verification Results: ${passed} Passed, ${failed} Failed`);

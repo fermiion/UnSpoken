@@ -70,7 +70,6 @@ UnSpoken/
 │   │   ├── admin/page.tsx               # Protected Moderation Portal
 │   │   ├── api/
 │   │   │   ├── thoughts/route.ts        # GET feed & POST anonymous submission
-│   │   │   ├── thoughts/check-duplicate/route.ts
 │   │   │   ├── thoughts/[id]/react/route.ts
 │   │   │   ├── thoughts/[id]/report/route.ts
 │   │   │   ├── thoughts/[id]/delete/route.ts
@@ -88,9 +87,8 @@ UnSpoken/
 │   │   ├── layout/Footer.tsx            # Brand footer & emergency numbers
 │   │   └── thoughts/
 │   │       ├── ThoughtCard.tsx          # Card with 4 supportive reactions, report & delete
-│   │       ├── WritingEditor.tsx        # Journal editor with character counter
-│   │       ├── DuplicateWarningModal.tsx# Duplicate confirmation dialogue
-│   │       ├── SuccessModal.tsx         # Deletion credential presentation
+│   │       ├── WritingEditor.tsx        # Journal editor with auto-expanding textarea
+│   │       ├── SuccessModal.tsx         # Deletion credential presentation & close button
 │   │       ├── ReportModal.tsx          # Discreet reporting modal
 │   │       └── DeleteModal.tsx          # Secure author deletion modal
 │   ├── context/
