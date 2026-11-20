@@ -43,10 +43,40 @@ export default function HomePage() {
 
   useEffect(() => {
     fetchRecentThoughts();
+
+    // Check if user arrived via #writing-area hash from another page or footer
+    const handleHashScroll = () => {
+      if (typeof window !== "undefined" && window.location.hash === "#writing-area") {
+        setTimeout(() => {
+          const el = document.getElementById("writing-area");
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
+            const textarea = el.querySelector("textarea");
+            if (textarea) textarea.focus();
+          }
+        }, 200);
+      }
+    };
+
+    handleHashScroll();
+    window.addEventListener("hashchange", handleHashScroll);
+    return () => window.removeEventListener("hashchange", handleHashScroll);
   }, []);
 
   const handleDeletedThought = (id: string) => {
     setRecentThoughts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const scrollToWriting = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    const el = document.getElementById("writing-area");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      setTimeout(() => {
+        const textarea = el.querySelector("textarea");
+        if (textarea) textarea.focus();
+      }, 400);
+    }
   };
 
   return (
@@ -58,7 +88,7 @@ export default function HomePage() {
         <section className="relative overflow-hidden py-16 sm:py-24 px-4 sm:px-6 border-b border-border-subtle/70">
           {/* Subtle Ambient Glow */}
           <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[640px] h-[340px] bg-terracotta/6 rounded-full blur-3xl pointer-events-none"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[640px] h-[340px] bg-terracotta/6 rounded-full blur-3xl pointer-events-none"
             aria-hidden="true"
           />
 
@@ -84,6 +114,7 @@ export default function HomePage() {
             <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-3.5">
               <a
                 href="#writing-area"
+                onClick={scrollToWriting}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl text-sm font-semibold tracking-wide bg-terracotta text-bg-primary hover:bg-terracotta-hover transition-all duration-150 shadow-sm active:scale-[0.98] cursor-pointer"
               >
                 <Feather className="w-4 h-4" />
@@ -102,7 +133,7 @@ export default function HomePage() {
         </section>
 
         {/* 2. WRITING SECTION */}
-        <section id="writing-area" className="py-14 sm:py-20 px-4 sm:px-6">
+        <section id="writing-area" className="scroll-mt-24 sm:scroll-mt-28 py-14 sm:py-20 px-4 sm:px-6">
           <div className="w-full max-w-[60rem] mx-auto">
             <WritingEditor
               onSuccess={fetchRecentThoughts}
@@ -186,7 +217,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 items-stretch">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
               {/* Feature Card 1: Zero Exposure */}
               <div className="rounded-2xl bg-bg-surface border border-border-subtle hover:border-border-strong p-7 space-y-3.5 shadow-xs transition-colors flex flex-col h-full">
                 <div className="w-11 h-11 rounded-xl bg-terracotta-muted text-terracotta flex items-center justify-center shrink-0">
@@ -216,7 +247,7 @@ export default function HomePage() {
               </div>
 
               {/* Feature Card 3: Safe Harbour */}
-              <div className="rounded-2xl bg-bg-surface border border-border-subtle hover:border-border-strong p-7 space-y-3.5 shadow-xs transition-colors flex flex-col h-full">
+              <div className="rounded-2xl bg-bg-surface border border-border-subtle hover:border-border-strong p-7 space-y-3.5 shadow-xs transition-colors flex flex-col h-full sm:col-span-2 lg:col-span-1">
                 <div className="w-11 h-11 rounded-xl bg-terracotta-muted text-terracotta flex items-center justify-center shrink-0">
                   <Shield className="w-5 h-5" />
                 </div>
@@ -428,6 +459,35 @@ export default function HomePage() {
                   </Link>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 8. BOTTOM INVITATION CTA */}
+        <section className="py-16 sm:py-20 px-4 sm:px-6 border-t border-border-subtle bg-bg-surface/10">
+          <div className="w-full max-w-[60rem] mx-auto text-center rounded-3xl bg-bg-surface border border-border-subtle p-8 sm:p-12 md:p-14 space-y-5 shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-terracotta-muted flex items-center justify-center text-terracotta mx-auto">
+              <Feather className="w-5 h-5" />
+            </div>
+
+            <div className="space-y-2 max-w-xl mx-auto">
+              <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-text-primary font-normal">
+                You don&apos;t have to hold it all inside.
+              </h2>
+              <p className="text-sm sm:text-base text-text-secondary font-light leading-relaxed">
+                Take all the space you need. Your words stay completely anonymous, with no account required.
+              </p>
+            </div>
+
+            <div className="pt-2">
+              <a
+                href="#writing-area"
+                onClick={scrollToWriting}
+                className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl text-sm font-semibold tracking-wide bg-terracotta text-bg-primary hover:bg-terracotta-hover transition-all duration-150 shadow-sm active:scale-[0.98] cursor-pointer"
+              >
+                <Feather className="w-4 h-4" />
+                <span>Write a Thought</span>
+              </a>
             </div>
           </div>
         </section>

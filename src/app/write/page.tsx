@@ -12,7 +12,7 @@ export default function WritePage() {
     <div className="min-h-screen flex flex-col bg-bg-primary text-text-primary">
       <Navbar />
 
-      <main className="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 py-10 sm:py-16 space-y-8">
+      <main className="flex-1 w-full max-w-[60rem] mx-auto px-4 sm:px-6 py-10 sm:py-16 space-y-8">
         {/* Editorial Heading */}
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-terracotta-muted/50 border border-terracotta/20 text-xs font-semibold uppercase tracking-wider text-terracotta">

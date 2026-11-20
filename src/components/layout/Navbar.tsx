@@ -24,6 +24,21 @@ export function Navbar() {
     return pathname.startsWith(href);
   };
 
+  const handleWriteClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    setMobileMenuOpen(false);
+    if (pathname === "/") {
+      e.preventDefault();
+      const el = document.getElementById("writing-area");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        setTimeout(() => {
+          const textarea = el.querySelector("textarea");
+          if (textarea) textarea.focus();
+        }, 400);
+      }
+    }
+  };
+
   return (
     <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-bg-primary/90 border-b border-border-subtle transition-colors duration-200">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between">
@@ -82,8 +97,9 @@ export function Navbar() {
 
           {/* Prominent Write a Thought Button */}
           <Link
-            href="/write"
-            className="inline-flex items-center gap-2 px-4.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide bg-terracotta text-bg-primary hover:bg-terracotta-hover shadow-sm transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta active:scale-[0.98]"
+            href={pathname === "/" ? "#writing-area" : "/#writing-area"}
+            onClick={handleWriteClick}
+            className="inline-flex items-center gap-2 px-4.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide bg-terracotta text-bg-primary hover:bg-terracotta-hover shadow-sm transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta active:scale-[0.98] cursor-pointer"
           >
             <Feather className="w-3.5 h-3.5" />
             <span>Write a Thought</span>
@@ -143,9 +159,9 @@ export function Navbar() {
 
           <div className="pt-2 border-t border-border-subtle">
             <Link
-              href="/write"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold bg-terracotta text-bg-primary hover:bg-terracotta-hover transition-colors"
+              href={pathname === "/" ? "#writing-area" : "/#writing-area"}
+              onClick={handleWriteClick}
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold bg-terracotta text-bg-primary hover:bg-terracotta-hover transition-colors cursor-pointer"
             >
               <Feather className="w-4 h-4" />
               <span>Write a Thought</span>

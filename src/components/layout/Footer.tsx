@@ -2,10 +2,26 @@
 
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Logo } from "@/components/common/Logo";
-import { ShieldCheck, HeartHandshake, EyeOff, ExternalLink } from "lucide-react";
+import { ShieldCheck, HeartHandshake, EyeOff, ExternalLink, Feather } from "lucide-react";
 
 export function Footer() {
+  const pathname = usePathname();
+
+  const handleWriteClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (pathname === "/") {
+      e.preventDefault();
+      const el = document.getElementById("writing-area");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        setTimeout(() => {
+          const textarea = el.querySelector("textarea");
+          if (textarea) textarea.focus();
+        }, 400);
+      }
+    }
+  };
   return (
     <footer className="mt-auto border-t border-border-subtle bg-bg-surface/50 text-text-secondary transition-colors duration-200">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
@@ -58,10 +74,12 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/write"
-                  className="hover:text-text-primary transition-colors duration-150"
+                  href={pathname === "/" ? "#writing-area" : "/#writing-area"}
+                  onClick={handleWriteClick}
+                  className="hover:text-text-primary transition-colors duration-150 flex items-center gap-1.5"
                 >
-                  Share Anonymously
+                  <Feather className="w-3.5 h-3.5 text-terracotta" />
+                  <span>Write a Thought</span>
                 </Link>
               </li>
               <li>

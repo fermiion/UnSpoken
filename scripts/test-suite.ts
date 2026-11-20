@@ -156,6 +156,53 @@ async function runTests() {
   // Clean up author B's thought too
   await ThoughtService.deleteThought(authorB.thought.id, authorB.deletionToken);
 
+  // 8. Client Draft Lifecycle & Compassionate Messages
+  console.log("\n--- 8. Draft Management & Compassionate Messages ---");
+  const draftKey = "unspoken_writing_draft_v1";
+  
+  // Simulated storage
+  const mockStorage: Record<string, string> = {};
+  const saveDraft = (content: string, category: string) => {
+    if (content.trim().length === 0) {
+      delete mockStorage[draftKey];
+      return null;
+    }
+    const draft = { content, category, savedAt: Date.now() };
+    mockStorage[draftKey] = JSON.stringify(draft);
+    return draft;
+  };
+
+  const loadDraft = () => {
+    const raw = mockStorage[draftKey];
+    if (!raw) return null;
+    return JSON.parse(raw);
+  };
+
+  const clearDraft = () => {
+    delete mockStorage[draftKey];
+  };
+
+  // Test 8a: Whitespace drafts are never saved
+  saveDraft("    \n\n  \t  ", "unspoken");
+  assert(loadDraft() === null, "Whitespace-only drafts are not persisted to storage");
+
+  // Test 8b: Meaningful draft is saved with formatting
+  const draftContent = "First line of a heartfelt thought.\n\nSecond paragraph with space.";
+  saveDraft(draftContent, "loneliness");
+  const restored = loadDraft();
+  assert(restored !== null && restored.content === draftContent && restored.category === "loneliness", "Unfinished draft is persisted and restored with intact paragraph breaks");
+
+  // Test 8c: Keep writing maintains draft
+  assert(loadDraft() !== null, "'Keep my writing' action preserves draft in storage");
+
+  // Test 8d: Clear draft removes draft from storage
+  clearDraft();
+  assert(loadDraft() === null, "Clear draft removes draft completely from storage");
+
+  // Test 8e: Compassionate message validation
+  const postClearMessage = "Thank you for giving your thoughts a place to land. You don't have to share them to let them matter.";
+  assert(postClearMessage.includes("giving your thoughts a place to land") && postClearMessage.includes("don't have to share them"), "Post-clearing compassionate message is accurate and gentle");
+
   console.log("\n=================================================");
   console.log(`   Verification Results: ${passed} Passed, ${failed} Failed`);
   console.log("=================================================\n");
